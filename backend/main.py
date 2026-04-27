@@ -25,9 +25,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8081",   # Expo web
-        "http://localhost:19006",  # Expo default
-        "*"                        # dev only
+        "http://localhost:8081",
+        "http://localhost:19006",
     ],
     allow_credentials=True,
     allow_methods=["*"],

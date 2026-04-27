@@ -27,11 +27,12 @@ export default function HomeScreen() {
   } | null>(null);
 
   const [history, setHistory] = useState<any[]>([]);
+  const BASE_URL = "https://rork-phishing-link-checker-clone-production.up.railway.app";
 
   const fetchHistory = async () => {
     try {
       const response = await fetch(
-        "https://decompose-shell-crushing.ngrok-free.dev/history"
+        `${BASE_URL}/history`
       );
 
       const data = await response.json();
@@ -62,7 +63,7 @@ export default function HomeScreen() {
       }
 
       const response = await fetch(
-        "https://decompose-shell-crushing.ngrok-free.dev/predict",
+        `${BASE_URL}/predict`,
         {
           method: "POST",
           headers: {

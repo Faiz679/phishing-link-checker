@@ -113,14 +113,24 @@ class URLRequest(BaseModel):
     url: str
     
 def save_scan(url, prediction, confidence):
-    cursor.execute(
-        """
-        INSERT INTO scan_logs (url, prediction, confidence)
-        VALUES (%s, %s, %s)
-        """,
-        (url, prediction, float(confidence))
-    )
-    conn.commit()
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO logs (url, result, confidence)
+            VALUES (%s, %s, %s)
+        """, (url, prediction, float(confidence)))
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()  # 🔥 THIS FIXES YOUR ERROR
+        print("DB ERROR:", e)
+
+    finally:
+        cursor.close()
+        conn.close()
 
 # =========================
 # API ENDPOINT

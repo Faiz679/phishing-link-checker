@@ -4,4 +4,3 @@ build/
 .next/
 .env
 *.log
-backend/Phishing Website Detection Dataset/

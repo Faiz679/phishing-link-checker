@@ -225,7 +225,10 @@ def health():
 
 @app.on_event("startup")
 def create_tables():
-    conn = psycopg2.connect(...)
+    import os
+    import psycopg2
+
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cur = conn.cursor()
 
     cur.execute("""

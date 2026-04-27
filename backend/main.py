@@ -229,3 +229,21 @@ def get_history():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.on_event("startup")
+def create_tables():
+    conn = psycopg2.connect(...)
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS logs (
+        id SERIAL PRIMARY KEY,
+        url TEXT,
+        result TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()

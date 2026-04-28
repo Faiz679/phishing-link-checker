@@ -39,9 +39,10 @@ export default function HomeScreen() {
 
       console.log("HISTORY:", data);
 
-      setHistory(data);
+      setHistory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("HISTORY ERROR:", error);
+      setHistory([]);
     }
   };
 
@@ -191,53 +192,65 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
-            <View style={styles.historyContainer}>
-              <Text style={[styles.tipsTitle, { color: theme.text }]}>
-                Recent Checks
-              </Text>
+           <View style={styles.historyContainer}>
+             <Text style={[styles.tipsTitle, { color: theme.text }]}>
+               Recent Checks
+             </Text>
 
-              {history.length === 0 ? (
-                <Text style={{ color: theme.secondaryText }}>
-                  No history yet
-                </Text>
-              ) : (
-                history.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.historyItem,
-                      { backgroundColor: theme.card }
-                    ]}
-                    onPress={() => setUrl(item.url)} // 🔥 clickable
-                  >
-                    {/* URL */}
-                    <Text
-                      style={[styles.historyUrl, { color: theme.text }]}
-                      numberOfLines={1}
-                    >
-                      {item.url}
-                    </Text>
+             {Array.isArray(history) && history.length > 0 ? (
+               history.map((item, index) => {
+                 const url = item[0];
+                 const result = item[1];
+                 const confidence = item[2];
+                 const source = item[3]; // 🔥 instead of date
 
-                    {/* RESULT */}
-                    <Text
-                      style={[
-                        styles.historyMeta,
-                        {
-                          color:
-                            item.prediction === "safe"
-                              ? "#10b981"
-                              : item.prediction === "phishing"
-                              ? "#ef4444"
-                              : "#f59e0b",
-                        },
-                      ]}
-                    >
-                      {(item.prediction === "benign" ? "safe" : item.prediction)} ({item.source || "ml"}) • {(item.confidence * 100).toFixed(1)}%
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </View>
+                 const isSafe = result === "safe";
+                 const isPhishing = result === "phishing";
+
+                 return (
+                   <View
+                     key={index}
+                     style={[
+                       styles.historyItem,
+                       isSafe
+                         ? styles.safeResult
+                         : isPhishing
+                         ? styles.phishingResult
+                         : styles.suspiciousResult,
+                     ]}
+                   >
+                     {/* URL */}
+                     <Text style={[styles.historyUrl, { color: theme.text }]}>
+                       {url}
+                     </Text>
+
+                     {/* RESULT */}
+                     <Text
+                       style={[
+                         styles.resultText,
+                         isSafe
+                           ? styles.safeText
+                           : isPhishing
+                           ? styles.phishingText
+                           : styles.suspiciousText,
+                       ]}
+                     >
+                       {result.toUpperCase()} ({source || "ml"})
+                     </Text>
+
+                     {/* CONFIDENCE */}
+                     <Text style={styles.confidenceText}>
+                       Confidence: {(confidence * 100).toFixed(2)}%
+                     </Text>
+                   </View>
+                 );
+               })
+             ) : (
+               <Text style={{ color: theme.secondaryText }}>
+                 No history yet
+               </Text>
+             )}
+           </View>
           </View>
 
           <View style={[styles.tipsContainer, { backgroundColor: theme.card }]}>

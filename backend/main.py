@@ -112,21 +112,21 @@ def extract_features(url):
 class URLRequest(BaseModel):
     url: str
     
-def save_scan(url, prediction, confidence):
+def save_scan(url, result, confidence, source):
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conn.cursor()
 
     try:
         cursor.execute("""
-            INSERT INTO logs (url, result, confidence)
-            VALUES (%s, %s, %s)
-        """, (url, prediction, float(confidence)))
+            INSERT INTO logs (url, result, confidence, source)
+            VALUES (%s, %s, %s, %s)
+        """, (url, result, float(confidence), source))
 
         conn.commit()
 
     except Exception as e:
-        conn.rollback()  # 🔥 THIS FIXES YOUR ERROR
-        print("DB ERROR:", e)
+        conn.rollback()
+        print("SAVE ERROR:", e)
 
     finally:
         cursor.close()
@@ -153,7 +153,7 @@ def predict(request: URLRequest):
         prediction = "phishing"
         confidence = 1.0
 
-        save_scan(url, prediction, confidence)
+        save_scan(url, prediction, confidence, "blacklist")
 
         return {
             "prediction": prediction,
@@ -171,7 +171,7 @@ def predict(request: URLRequest):
         prediction = "safe"
         confidence = 0.0
 
-        save_scan(url, prediction, confidence)
+        save_scan(url, prediction, confidence, "whitelist")
 
         return {
             "prediction": prediction,
@@ -196,7 +196,7 @@ def predict(request: URLRequest):
         label = "phishing"
 
     # ✅ SAVE TO DB
-    save_scan(url, label, prob)
+    save_scan(url, label, prob, "ml")
 
     return {
     "prediction": label,
@@ -211,11 +211,11 @@ def get_history():
 
     try:
         cursor.execute("""
-            SELECT url, result, confidence, created_at
-            FROM logs
-            ORDER BY created_at DESC
-            LIMIT 20
-        """)
+                SELECT url, result, confidence, source
+                FROM logs
+                ORDER BY created_at DESC
+                LIMIT 20
+            """)
         data = cursor.fetchall()
 
         return data
@@ -242,13 +242,15 @@ def create_tables():
     cur = conn.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS logs (
-        id SERIAL PRIMARY KEY,
-        url TEXT,
-        result TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    """)
+        CREATE TABLE IF NOT EXISTS logs (
+            id SERIAL PRIMARY KEY,
+            url TEXT,
+            result TEXT,
+            confidence FLOAT,
+            source TEXT,  -- 🔥 ADD THIS
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
 
     conn.commit()
     cur.close()

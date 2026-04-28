@@ -206,27 +206,28 @@ def predict(request: URLRequest):
     
 @app.get("/history")
 def get_history():
-    cursor.execute(
-        """
-        SELECT id, url, prediction, confidence, created_at
-        FROM scan_logs
-        ORDER BY created_at DESC
-        LIMIT 10
-        """
-    )
-    rows = cursor.fetchall()
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor()
 
-    result = []
-    for row in rows:
-        result.append({
-            "id": row[0],
-            "url": row[1],
-            "prediction": "safe" if row[2] == "benign" else row[2],
-            "confidence": row[3],
-            "created_at": str(row[4])
-        })
+    try:
+        cursor.execute("""
+            SELECT url, result, confidence, created_at
+            FROM logs
+            ORDER BY created_at DESC
+            LIMIT 20
+        """)
+        data = cursor.fetchall()
 
-    return result
+        return data
+
+    except Exception as e:
+        conn.rollback()  # 🔥 VERY IMPORTANT
+        print("HISTORY ERROR:", e)
+        return []
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.get("/health")
 def health():

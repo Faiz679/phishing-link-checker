@@ -1,18 +1,21 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import psutil
 import os
 import joblib
 import re
 import math
+import time
 from urllib.parse import urlparse
 from scipy.sparse import hstack, csr_matrix
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 
-
 conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 
 cursor = conn.cursor()
+
+process = psutil.Process(os.getpid())
 
 # =========================
 # APP INIT (FIXED ORDER)
@@ -178,6 +181,11 @@ def predict(request: URLRequest):
             "confidence": confidence,
             "source": "whitelist"
         }
+        
+    cpu_before = psutil.cpu_percent(interval=None)
+    mem_before = process.memory_info().rss  # bytes
+        
+    start = time.time()
 
     # =========================
     # ML PREDICTION
@@ -187,6 +195,14 @@ def predict(request: URLRequest):
     X = hstack([X_text, X_struct])
 
     prob = model.predict_proba(X)[0][1]
+    
+    end = time.time()
+    cpu_after = psutil.cpu_percent(interval=None)
+    mem_after = process.memory_info().rss
+    
+    processing_time = end - start
+    memory_used = (mem_after - mem_before) / (1024 * 1024)  # MB
+    cpu_usage = cpu_after
 
     if prob < 0.3:
         label = "safe"
@@ -201,7 +217,10 @@ def predict(request: URLRequest):
     return {
     "prediction": label,
     "confidence": float(prob),
-    "source": "ml"
+    "source": "ml",
+    "processing_time": processing_time,
+    "memory_used": memory_used,
+    "cpu_usage": cpu_usage,
 }
     
 @app.get("/history")

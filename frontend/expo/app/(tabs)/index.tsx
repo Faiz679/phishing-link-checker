@@ -24,6 +24,7 @@ export default function HomeScreen() {
     prediction: "safe" | "phishing" | "suspicious";
     confidence: number;
     source: "whitelist" | "blacklist" | "ml";
+    processing_time?: number;
   } | null>(null);
 
   const [history, setHistory] = useState<any[]>([]);
@@ -52,44 +53,52 @@ export default function HomeScreen() {
     setIsChecking(true);
     setResult(null);
 
+    // ✅ START TIMER HERE (before request)
+    const start = Date.now();
+
     try {
       let cleanUrl = url.trim().toLowerCase();
 
-      // remove trailing slash
       cleanUrl = cleanUrl.replace(/\/+$/, "");
 
-      // ensure protocol
       if (!cleanUrl.startsWith("http")) {
         cleanUrl = "http://" + cleanUrl;
       }
 
-      const response = await fetch(
-        `${BASE_URL}/predict`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ url: cleanUrl }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: cleanUrl }),
+      });
 
       const data = await response.json();
 
+      // ✅ END TIMER HERE (after response received)
+      const end = Date.now();
+      const latency = end - start;
+
+      console.log("LATENCY (ms):", latency);
       console.log("API RESPONSE:", data);
 
-      // ✅ KEEP SAME RESULT FORMAT FOR UI
       setResult({
         prediction: data.prediction,
         confidence: data.confidence,
         source: data.source,
+        processing_time: data.processing_time,
       });
-    fetchHistory();
+
+      fetchHistory();
 
     } catch (error) {
       console.error("API ERROR:", error);
 
-      // fallback (optional)
+      const end = Date.now();
+      const latency = end - start;
+
+      console.log("LATENCY (ms) [FAILED]:", latency);
+
       setResult({
         prediction: "phishing",
         confidence: 1,
@@ -97,7 +106,6 @@ export default function HomeScreen() {
       });
     }
 
-    // ✅ IMPORTANT: keep this OUTSIDE like your original structure
     setIsChecking(false);
   };
 
@@ -220,7 +228,7 @@ export default function HomeScreen() {
                      ]}
                    >
                      {/* URL */}
-                     <Text style={[styles.historyUrl, { color: theme.text }]}>
+                     <Text style={[styles.historyUrl]}>
                        {url}
                      </Text>
 
@@ -242,6 +250,11 @@ export default function HomeScreen() {
                      <Text style={styles.confidenceText}>
                        Confidence: {(confidence * 100).toFixed(2)}%
                      </Text>
+                     {result.processing_time !== undefined && (
+                       <Text style={styles.confidenceText}>
+                         ML Time: {(result.processing_time * 1000).toFixed(2)} ms
+                       </Text>
+                     )}
                    </View>
                  );
                })
@@ -407,6 +420,7 @@ const styles = StyleSheet.create({
   historyUrl: {
     fontSize: 14,
     fontWeight: "500",
+    marginBottom: 2,
   },
 
   historyMeta: {

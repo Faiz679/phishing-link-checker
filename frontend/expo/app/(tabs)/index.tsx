@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocalSearchParams } from "expo-router";
+import * as Linking from "expo-linking";
 import {
   StyleSheet,
   Text,
@@ -17,6 +19,8 @@ import { useTheme } from "@/providers/theme";
 export default function HomeScreen() {
   const { isDark } = useTheme();
   const theme = isDark ? Colors.dark : Colors.light;
+  const params = useLocalSearchParams<{ url?: string }>();
+  const lastHandledUrl = useRef<string | null>(null);
 
   const [url, setUrl] = useState("");
   const [isChecking, setIsChecking] = useState(false);
@@ -112,6 +116,66 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  // Handle deep link param (from +native-intent redirect)
+  useEffect(() => {
+    const incoming = typeof params.url === "string" ? params.url : undefined;
+    if (incoming && incoming !== lastHandledUrl.current) {
+      lastHandledUrl.current = incoming;
+      setUrl(incoming);
+      // Defer so state is set before the check fires
+      setTimeout(() => {
+        runCheck(incoming);
+      }, 50);
+    }
+  }, [params.url]);
+
+  // Handle links received while app is already open
+  useEffect(() => {
+    const sub = Linking.addEventListener("url", ({ url: incoming }) => {
+      try {
+        const parsed = Linking.parse(incoming);
+        const target =
+          (parsed.queryParams?.url as string | undefined) ??
+          (incoming.startsWith("http") ? incoming : undefined);
+        if (target && target !== lastHandledUrl.current) {
+          lastHandledUrl.current = target;
+          setUrl(target);
+          runCheck(target);
+        }
+      } catch (e) {
+        console.log("linking parse error", e);
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
+  const runCheck = async (target: string) => {
+    setUrl(target);
+    setIsChecking(true);
+    setResult(null);
+    try {
+      let cleanUrl = target.trim().toLowerCase().replace(/\/+$/, "");
+      if (!cleanUrl.startsWith("http")) cleanUrl = "http://" + cleanUrl;
+      const response = await fetch(`${BASE_URL}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: cleanUrl }),
+      });
+      const data = await response.json();
+      setResult({
+        prediction: data.prediction,
+        confidence: data.confidence,
+        source: data.source,
+        processing_time: data.processing_time,
+      });
+      fetchHistory();
+    } catch (error) {
+      console.error("API ERROR (deep link):", error);
+      setResult({ prediction: "phishing", confidence: 1, source: "ml" });
+    }
+    setIsChecking(false);
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={["top"]}>

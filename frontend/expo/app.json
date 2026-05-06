@@ -15,14 +15,31 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.a2jazond8ece7q5uarbea"
+      "bundleIdentifier": "app.rork.a2jazond8ece7q5uarbea",
+      "associatedDomains": ["applinks:linkguard.example.com"]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.a2jazond8ece7q5uarbea"
+      "package": "app.rork.a2jazond8ece7q5uarbea",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https" },
+            { "scheme": "http" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": [{ "scheme": "rork-app" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

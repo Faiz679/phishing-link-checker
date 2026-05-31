@@ -12,8 +12,17 @@ from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 
 print(repr(os.getenv("DATABASE_URL")))
+print("HOST:", os.getenv("PGHOST"))
+print("USER:", os.getenv("PGUSER"))
+print("DB:", os.getenv("PGDATABASE"))
 
-conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+conn = psycopg2.connect(
+    host=os.getenv("PGHOST"),
+    port=os.getenv("PGPORT"),
+    user=os.getenv("PGUSER"),
+    password=os.getenv("PGPASSWORD"),
+    dbname=os.getenv("PGDATABASE"),
+)
 
 cursor = conn.cursor()
 

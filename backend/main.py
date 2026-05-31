@@ -11,6 +11,8 @@ from scipy.sparse import hstack, csr_matrix
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 
+print(repr(os.getenv("DATABASE_URL")))
+
 conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 
 cursor = conn.cursor()

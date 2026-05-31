@@ -16,6 +16,13 @@ print("HOST:", os.getenv("PGHOST"))
 print("USER:", os.getenv("PGUSER"))
 print("DB:", os.getenv("PGDATABASE"))
 
+pw = os.getenv("PGPASSWORD")
+print("PGPASSWORD repr:", repr(pw))
+print("PGPASSWORD length:", len(pw) if pw else None)
+
+url = os.getenv("DATABASE_URL")
+print("DATABASE_URL repr:", repr(url))
+
 conn = psycopg2.connect(
     host=os.getenv("PGHOST"),
     port=os.getenv("PGPORT"),

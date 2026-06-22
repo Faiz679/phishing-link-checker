@@ -7,6 +7,22 @@
     <list default="true" id="a5bee675-567e-4c99-9ac1-7afdaf4dcdc3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/phishing-link-checker.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/app/+native-intent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/app/+native-intent.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/bun.lock" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/bun.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/metro.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/metro.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/expo/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/expo/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/rork.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

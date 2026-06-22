@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rork-app",
+    "scheme": "phishingchecker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.a2jazond8ece7q5uarbea",
+      "bundleIdentifier": "com.faiz.phishingchecker",
       "associatedDomains": ["applinks:linkguard.example.com"]
     },
     "android": {
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.a2jazond8ece7q5uarbea",
+      "package": "com.faiz.phishingchecker",
       "intentFilters": [
         {
           "action": "VIEW",
@@ -36,7 +36,7 @@
         },
         {
           "action": "VIEW",
-          "data": [{ "scheme": "rork-app" }],
+          "data": [{ "scheme": "phishingchecker" }],
           "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
@@ -46,10 +46,8 @@
     },
     "plugins": [
       [
-        "expo-router",
-        {
-          "origin": "https://rork.com/"
-        }
+        "expo-router"
+
       ],
       "expo-font",
       "expo-web-browser"

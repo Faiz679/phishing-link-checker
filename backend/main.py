@@ -87,10 +87,14 @@ blacklist = load_blacklist("./Phishing Website Detection Dataset/Data/Test/phish
 # FEATURES
 # =========================
 def normalize_url(url):
-    url = url.strip()
-    if not url.startswith("http"):
-        url = "http://" + url
-    return url.lower()
+    url = url.strip().lower()
+
+    if url.startswith("http://"):
+        url = url[7:]
+    elif url.startswith("https://"):
+        url = url[8:]
+
+    return "http://" + url
 
 def entropy(s):
     prob = [s.count(c)/len(s) for c in set(s)]

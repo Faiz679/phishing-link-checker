@@ -1,6 +1,6 @@
 /**
  * Handles incoming deep links from other apps (e.g. WhatsApp).
- * - rork-app://check?url=https://example.com  → opens home with prefilled url
+ * - phishingchecker://check?url=https://example.com  → opens home with prefilled url
  * - https://yourdomain.com/check?url=...      → same (requires Universal/App Links)
  * - any other https://... tapped that targets the app → prefill home with that URL
  */

@@ -32,7 +32,7 @@ export default function HomeScreen() {
   } | null>(null);
 
   const [history, setHistory] = useState<any[]>([]);
-  const BASE_URL = "https://rork-phishing-link-checker-clone-production.up.railway.app";
+  const BASE_URL = "https://phishing-link-checker-production.up.railway.app";
 
   const fetchHistory = async () => {
     try {

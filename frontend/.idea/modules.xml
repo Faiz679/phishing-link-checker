@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/rork-phishing-link-checker-clone.iml" filepath="$PROJECT_DIR$/.idea/rork-phishing-link-checker-clone.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/phishing-link-checker.iml" filepath="$PROJECT_DIR$/.idea/phishing-link-checker.iml" />
     </modules>
   </component>
 </project>

@@ -57,9 +57,6 @@ export default function HomeScreen() {
     setIsChecking(true);
     setResult(null);
 
-    // ✅ START TIMER HERE (before request)
-    const start = Date.now();
-
     try {
       let cleanUrl = url.trim().toLowerCase();
 
@@ -79,11 +76,6 @@ export default function HomeScreen() {
 
       const data = await response.json();
 
-      // ✅ END TIMER HERE (after response received)
-      const end = Date.now();
-      const latency = end - start;
-
-      console.log("LATENCY (ms):", latency);
       console.log("API RESPONSE:", data);
 
       setResult({
@@ -314,11 +306,16 @@ export default function HomeScreen() {
                      <Text style={styles.confidenceText}>
                        Confidence: {(confidence * 100).toFixed(2)}%
                      </Text>
-                     {result.processing_time !== undefined && (
-                       <Text style={styles.confidenceText}>
-                         ML Time: {(result.processing_time * 1000).toFixed(2)} ms
+                     <TouchableOpacity
+                       style={styles.reportButton}
+                       onPress={() =>
+                         reportUrl(url, result, confidence)
+                       }
+                     >
+                       <Text style={styles.reportButtonText}>
+                         Report Result
                        </Text>
-                     )}
+                     </TouchableOpacity>
                    </View>
                  );
                })
@@ -487,11 +484,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  historyMeta: {
-    marginTop: 6,
-    fontSize: 13,
-    fontWeight: "600",
-  },
   suspiciousResult: {
     backgroundColor: "#fef3c7",
   },
@@ -504,5 +496,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 6,
     opacity: 0.8,
+  },
+
+  reportButton: {
+    marginTop: 8,
+    backgroundColor: "#2563eb",
+    paddingVertical: 8,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+
+  reportButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });

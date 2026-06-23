@@ -1,3 +1,4 @@
+# IMPORTS 
 from fastapi import FastAPI
 from pydantic import BaseModel
 import psutil
@@ -11,18 +12,7 @@ from scipy.sparse import hstack, csr_matrix
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 
-print(repr(os.getenv("DATABASE_URL")))
-print("HOST:", os.getenv("PGHOST"))
-print("USER:", os.getenv("PGUSER"))
-print("DB:", os.getenv("PGDATABASE"))
-
-pw = os.getenv("PGPASSWORD")
-print("PGPASSWORD repr:", repr(pw))
-print("PGPASSWORD length:", len(pw) if pw else None)
-
-url = os.getenv("DATABASE_URL")
-print("DATABASE_URL repr:", repr(url))
-
+# DATABASE CONNECTION
 conn = psycopg2.connect(
     host=os.getenv("PGHOST"),
     port=os.getenv("PGPORT"),
@@ -35,14 +25,10 @@ cursor = conn.cursor()
 
 process = psutil.Process(os.getpid())
 
-# =========================
-# APP INIT (FIXED ORDER)
-# =========================
+# APP INIT 
 app = FastAPI()
 
-# =========================
-# CORS (FIXED)
-# =========================
+# CORS 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -54,15 +40,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================
 # LOAD MODEL
-# =========================
 model = joblib.load("./Model/hybrid_xgb/hybrid_model_strict_whitelist.pkl")
 vectorizer = joblib.load("./Model/hybrid_xgb/vectorizer_model_strict_whitelist.pkl")
 
-# =========================
 # WHITELIST
-# =========================
 def load_whitelist(file):
     with open(file, "r") as f:
         return set(
@@ -72,9 +54,7 @@ def load_whitelist(file):
 
 whitelist = load_whitelist("./Phishing Website Detection Dataset/Data/Test/clean_whitelist.txt")
 
-# =========================
 # BLACKLIST
-# =========================
 def load_blacklist(file):
     with open(file, "r") as f:
         return set(
@@ -83,9 +63,8 @@ def load_blacklist(file):
         )
 
 blacklist = load_blacklist("./Phishing Website Detection Dataset/Data/Test/phishing_blacklist.txt")
-# =========================
+
 # FEATURES
-# =========================
 def normalize_url(url):
     url = url.strip().lower()
 
@@ -131,12 +110,15 @@ def extract_features(url):
         is_whitelisted
     ]
 
-# =========================
 # REQUEST FORMAT
-# =========================
 class URLRequest(BaseModel):
     url: str
-    
+
+class ReportRequest(BaseModel):
+    url: str
+    prediction: str
+    confidence: float
+
 def save_scan(url, result, confidence, source):
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conn.cursor()
@@ -157,9 +139,7 @@ def save_scan(url, result, confidence, source):
         cursor.close()
         conn.close()
 
-# =========================
 # API ENDPOINT
-# =========================
 @app.post("/predict")
 def predict(request: URLRequest):
     url = normalize_url(request.url)
@@ -171,9 +151,7 @@ def predict(request: URLRequest):
 
     parsed = urlparse(url)
 
-    # =========================
-    # STRICT BLACKLIST
-    # =========================
+    # BLACKLIST
     if url in blacklist:
         prediction = "phishing"
         confidence = 1.0
@@ -186,9 +164,7 @@ def predict(request: URLRequest):
             "source": "blacklist"
         }
 
-    # =========================
-    # STRICT WHITELIST
-    # =========================
+    # WHITELIST
     if (
         domain in whitelist and
         (parsed.path == "" or parsed.path == "/")
@@ -209,9 +185,7 @@ def predict(request: URLRequest):
         
     start = time.time()
 
-    # =========================
     # ML PREDICTION
-    # =========================
     X_text = vectorizer.transform([url])
     X_struct = csr_matrix([extract_features(url)])
     X = hstack([X_text, X_struct])
@@ -233,7 +207,7 @@ def predict(request: URLRequest):
     else:
         label = "phishing"
 
-    # ✅ SAVE TO DB
+    # SAVE TO DB
     save_scan(url, label, prob, "ml")
 
     return {
@@ -245,6 +219,7 @@ def predict(request: URLRequest):
     "cpu_usage": cpu_usage,
 }
     
+# HISTORY ENDPOINT    
 @app.get("/history")
 def get_history():
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
@@ -270,10 +245,47 @@ def get_history():
         cursor.close()
         conn.close()
 
+@app.post("/report-url")
+def report_url(data: ReportRequest):
+
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO reported_urls
+            (url, prediction, confidence)
+            VALUES (%s, %s, %s)
+        """, (
+            data.url,
+            data.prediction,
+            data.confidence
+        ))
+
+        conn.commit()
+
+        return {
+            "message": "URL submitted for review"
+        }
+
+    except Exception as e:
+        conn.rollback()
+        print("REPORT ERROR:", e)
+
+        return {
+            "message": "Failed to submit report"
+        }
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# HEALTH CHECK
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
+# CREATE TABLE ON STARTUP
 @app.on_event("startup")
 def create_tables():
     import os
@@ -290,6 +302,16 @@ def create_tables():
             confidence FLOAT,
             source TEXT,  -- 🔥 ADD THIS
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS reported_urls (
+            id SERIAL PRIMARY KEY,
+            url TEXT,
+            prediction TEXT,
+            confidence FLOAT,
+            reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """)
 

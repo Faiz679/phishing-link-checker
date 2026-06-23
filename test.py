@@ -19,3 +19,20 @@ df_benign = load_txt(BENIGN_FILE, 0)
 df_malign = load_txt(MALIGN_FILE, 1)
 df = pd.concat([df_benign, df_malign], ignore_index=True)
 
+
+
+
+model = Sequential([
+    Embedding(input_dim=MAX_WORDS, output_dim=64, input_length=MAX_LEN),
+    LSTM(64, return_sequences=False),
+    Dropout(0.2),
+    Dense(32, activation="relu"),
+    Dense(1, activation="sigmoid")
+])
+
+early_stop = EarlyStopping(
+    monitor="val_loss", patience=3, restore_best_weights=True
+)
+history = model.fit(X_train, y_train, validation_data=(X_val, y_val),
+    epochs=10, batch_size=64, callbacks=[early_stop], verbose=1
+)

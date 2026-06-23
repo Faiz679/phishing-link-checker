@@ -51,6 +51,36 @@ export default function HomeScreen() {
     }
   };
 
+  const reportUrl = async (
+    url: string,
+    prediction: string,
+    confidence: number
+  ) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/report-url`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url,
+            prediction,
+            confidence,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      alert(data.message);
+    } catch (error) {
+      console.error("REPORT ERROR:", error);
+      alert("Failed to submit report");
+    }
+  };
+
   const handleCheck = async () => {
     if (!url.trim()) return;
 

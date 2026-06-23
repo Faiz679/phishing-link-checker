@@ -279,6 +279,41 @@ def report_url(data: ReportRequest):
     finally:
         cursor.close()
         conn.close()
+        
+@app.get("/reports")
+def get_reports():
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT url, prediction, confidence, reported_at
+            FROM reported_urls
+            ORDER BY reported_at DESC
+            LIMIT 50
+        """)
+        data = cursor.fetchall()
+
+        return {
+            "reports": [
+                {
+                    "url": row[0],
+                    "prediction": row[1],
+                    "confidence": row[2],
+                    "reported_at": row[3]
+                }
+                for row in data
+            ]
+        }
+
+    except Exception as e:
+        conn.rollback()
+        print("REPORTS FETCH ERROR:", e)
+        return {"reports": []}
+
+    finally:
+        cursor.close()
+        conn.close()
 
 # HEALTH CHECK
 @app.get("/health")

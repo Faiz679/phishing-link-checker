@@ -60,10 +60,7 @@ def load_txt(file, label):
     })
 df_benign = load_txt(BENIGN_FILE, 0)
 df_malign = load_txt(MALIGN_FILE, 1)
-df = pd.concat(
-    [df_benign, df_malign],
-    ignore_index=True
-)
+df = pd.concat([df_benign, df_malign], ignore_index=True)
 print("Dataset size:", len(df))
 print(df["label"].value_counts())
 
@@ -102,24 +99,11 @@ print("Test:", X_test.shape[0])
 
 # BUILD LSTM MODEL
 model = Sequential([
-    Embedding(
-        input_dim=MAX_WORDS,
-        output_dim=64,
-        input_length=MAX_LEN
-    ),
-    LSTM(
-        64,
-        return_sequences=False
-    ),
+    Embedding(input_dim=MAX_WORDS, output_dim=64, input_length=MAX_LEN),
+    LSTM(64, return_sequences=False),
     Dropout(0.2),
-    Dense(
-        32,
-        activation="relu"
-    ),
-    Dense(
-        1,
-        activation="sigmoid"
-    )
+    Dense(32, activation="relu"),
+    Dense(1, activation="sigmoid")
 ])
 model.compile(
     loss="binary_crossentropy",
@@ -130,37 +114,19 @@ model.summary()
 
 # TRAIN MODEL
 early_stop = EarlyStopping(
-    monitor="val_loss",
-    patience=3,
-    restore_best_weights=True
+    monitor="val_loss", patience=3, restore_best_weights=True
 )
-history = model.fit(
-    X_train,
-    y_train,
-    validation_data=(X_val, y_val),
-    epochs=10,
-    batch_size=64,
-    callbacks=[early_stop],
-    verbose=1
+history = model.fit(X_train, y_train, validation_data=(X_val, y_val),
+    epochs=10, batch_size=64, callbacks=[early_stop], verbose=1
 )
 
 # VALIDATION
 y_val_prob = model.predict(X_val).flatten()
 y_val_pred = (y_val_prob >= 0.5).astype(int)
 print("\n=== VALIDATION RESULT ===\n")
-print(classification_report(
-    y_val,
-    y_val_pred,
-    digits=4
-))
-print(
-    "Validation Accuracy:",
-    accuracy_score(y_val, y_val_pred)
-)
-print(
-    "Validation AUC:",
-    roc_auc_score(y_val, y_val_prob)
-)
+print(classification_report(y_val,y_val_pred,digits=4))
+print("Validation Accuracy:",accuracy_score(y_val, y_val_pred))
+print("Validation AUC:",roc_auc_score(y_val, y_val_prob))
 
 # TEST
 y_test_prob = model.predict(X_test).flatten()

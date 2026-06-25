@@ -2,7 +2,7 @@
   "name": "expo-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
- "scripts": {
+  "scripts": {
     "start": "bunx rork start -p a2jazond8ece7q5uarbea --tunnel",
     "start-web": "bunx rork start -p a2jazond8ece7q5uarbea --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p a2jazond8ece7q5uarbea --web --tunnel",
@@ -33,7 +33,7 @@
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
     "expo-web-browser": "~15.0.10",
-    "lucide-react-native": "^0.475.0",
+    "lucide-react-native": "^1.21.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",

@@ -16,7 +16,9 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.faiz.phishingchecker",
-      "associatedDomains": ["applinks:linkguard.example.com"]
+      "associatedDomains": [
+        "applinks:linkguard.example.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -29,15 +31,29 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https" },
-            { "scheme": "http" }
+            {
+              "scheme": "https"
+            },
+            {
+              "scheme": "http"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         },
         {
           "action": "VIEW",
-          "data": [{ "scheme": "phishingchecker" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "phishingchecker"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -47,13 +63,19 @@
     "plugins": [
       [
         "expo-router"
-
       ],
       "expo-font",
       "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cd6eff1e-d5ca-413f-84fe-328c26ad53ea"
+      }
+    },
+    "owner": "faiz679"
   }
 }
